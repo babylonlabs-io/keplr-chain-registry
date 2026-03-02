@@ -4,6 +4,9 @@ on:
     types: [opened, synchronize]
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   validation:
     name: Pull Request Suggest Chain Validation
@@ -32,9 +35,11 @@ jobs:
             evm/**
 
       - name: Validate changed files
+        env:
+          CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          for file in $CHANGED_FILES; do
             if [[ $file == *".json"* ]]; then
-              yarn ts-node src/index.ts $file
+              yarn ts-node src/index.ts "$file"
             fi
           done
